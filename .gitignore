@@ -1,0 +1,5 @@
+build/
+cidata.iso
+debian.qcow2
+initrd
+vmlinuz
