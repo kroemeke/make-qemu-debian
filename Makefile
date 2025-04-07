@@ -7,10 +7,14 @@ SHELL := bash
 BUILDDIR := build
 DEBIAN_IMG_URL := https://cdimage.debian.org/images/cloud/sid/daily/latest/debian-sid-generic-amd64-daily.qcow2
 DEBIAN_IMG_FILE := debian.qcow2
-KERNEL_CMDLINE := root=PARTUUID=4c26831d-eb9c-4239-9b6b-48fa177baff4 ro console=tty0 console=ttyS0,115200 earlyprintk=ttyS0,115200 consoleblank=0 debug
+KERNEL_CMDLINE := root=/dev/sda1 console=tty0 console=ttyS0,115200 earlyprintk=ttyS0,115200 consoleblank=0
 
 .PHONY: all
-all: prepare cidata download extract run
+all: prepare cidata download extract resize run
+
+.PHONY: resize
+resize:
+	qemu-img resize $(DEBIAN_IMG_FILE) +10G
 
 .PHONY: prepare
 prepare:
