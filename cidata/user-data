@@ -7,3 +7,48 @@ chpasswd:
 users:
   - name: root
     lock_passwd: false
+
+# Everything we need to build a mainline linux kernel
+packages:
+  - build-essential
+  - flex
+  - bison
+  - bc
+  - dwarves
+  - libssl-dev
+  - jq
+  - curl
+  - libncurses-dev
+  - gawk
+  - libssl-dev
+  - libelf-dev
+  - libudev-dev
+  - libpci-dev
+  - libiberty-dev
+  - autoconf
+  - llvm
+
+write_files:
+  # Get kernel.org/releases.json, extract latest mainline version and url
+  # and build the damn thing
+  - content: |
+      #!/bin/bash -x
+      export RELEASES=/tmp/releases.json
+      curl -L -o $RELEASES https://www.kernel.org/releases.json
+      export URL=$(jq -r '.releases[] | select(.moniker=="mainline") | .source' $RELEASES)
+      export VERSION=$(jq -r '.releases[] | select(.moniker=="mainline") | .version' $RELEASES)
+      export TEMP=$(mktemp -d -p $PWD)
+      mkdir $TEMP/linux-$VERSION
+      cd $TEMP/linux-$VERSION
+      curl -LOJ $URL
+      tar -xf *
+      cd linux-$VERSION
+      cp /boot/config-$(uname -r) .config
+      make -j$(nproc) olddefconfig
+      make -j$(nproc) bzImage
+      make -j$(nproc) bindeb-pkg
+    path: /root/build_kernel.sh
+    permissions: '0755'
+
+runcmd:
+  - /root/build_kernel.sh

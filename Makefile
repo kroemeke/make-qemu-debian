@@ -64,7 +64,8 @@ run:
 	qemu-system-x86_64 \
 		-enable-kvm \
 		-nographic \
-		-m 1G \
+		-m 16G \
+		-smp $$(nproc) \
 		-cdrom cidata.iso \
 		-kernel vmlinuz \
 		-initrd initrd \
